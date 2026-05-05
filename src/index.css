@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  
+  --color-brand: #195ee3;
+  --color-brand-muted: rgba(25, 94, 227, 0.05);
+  --color-dark: #121212;
+  --color-muted: #525b7a;
+  --color-bg-alt: #fcfdfe;
+  
+  --radius-card: 16px;
+  --radius-button: 8px;
+  
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-hero-mockup: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply font-sans text-dark bg-white antialiased tracking-tight;
+  }
+}
+
+@layer utilities {
+  .hero-gradient {
+    background: linear-gradient(135deg, #195ee3 0%, #3a32cb 100%);
+  }
+  
+  .glass-card {
+    @apply bg-white border border-[#f0f2f8] shadow-card rounded-card transition-all duration-300;
+  }
+  
+  .section-tag {
+    @apply inline-block px-3 py-1 rounded-sm bg-brand-muted text-brand font-bold text-[10px] uppercase tracking-[0.2em] mb-4;
+  }
+  
+  .section-title {
+    @apply font-display font-bold text-3xl md:text-5xl leading-tight mb-6 tracking-tight;
+  }
+}
+
+section[id] {
+  scroll-margin-top: 100px;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+.pause-marquee {
+  animation-play-state: paused;
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
