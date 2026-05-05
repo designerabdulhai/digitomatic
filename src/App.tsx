@@ -308,6 +308,13 @@ const Services = ({ services }: { services: Service[] }) => {
   );
 };
 
+const getYouTubeEmbedUrl = (url: string) => {
+  if (!url) return '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
+};
+
 const Portfolio = ({ portfolio }: { portfolio: PortfolioType[] }) => {
   const [filter, setFilter] = useState('All');
   const categories = ['All', ...new Set(portfolio.map(p => p.category))];
@@ -360,9 +367,18 @@ const Portfolio = ({ portfolio }: { portfolio: PortfolioType[] }) => {
                 className="glass-card overflow-hidden group hover:scale-[1.02] transition-all duration-500 ease-out"
               >
                 <div className="aspect-video relative overflow-hidden bg-brand/5 flex items-center justify-center text-7xl">
-                  <div className="transition-transform duration-700 ease-out group-hover:scale-110">
-                    {item.emoji}
-                  </div>
+                  {item.video_url ? (
+                    <iframe 
+                      src={getYouTubeEmbedUrl(item.video_url)} 
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <div className="transition-transform duration-700 ease-out group-hover:scale-110">
+                      {item.emoji}
+                    </div>
+                  )}
                 </div>
                 <div className="p-8">
                   <span className="text-xs font-bold uppercase tracking-widest text-brand mb-2 block">{item.category}</span>
@@ -690,8 +706,14 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     setIsAuthenticated(false);
   };
 
-  const handleDelete = async (table: string, id: number) => {
+  const isUUID = (id: any) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
+
+  const handleDelete = async (table: string, id: any) => {
     if (confirm('Are you sure?')) {
+      if (!isUUID(id) && table !== 'messages') {
+        alert('Cannot delete fallback data. This item is not yet in the database.');
+        return;
+      }
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) alert(error.message);
       else {
@@ -706,9 +728,17 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     const [icon, setIcon] = useState(item?.icon || '⚡');
     const [desc, setDesc] = useState(item?.description || '');
     const save = async () => {
-      const data = { title, icon, description: desc };
-      const { error } = item ? await supabase.from('services').update(data).eq('id', item.id) : await supabase.from('services').insert([data]);
-      if (error) alert(error.message); else { refreshData(); setIsModalOpen(false); }
+      const data = { title, icon, description: desc, sort_order: item?.sort_order || 0 };
+      const { error } = (item && isUUID(item.id)) 
+        ? await supabase.from('services').update(data).eq('id', item.id) 
+        : await supabase.from('services').insert([data]);
+      if (error) {
+        console.error('Error saving service:', error);
+        alert(`Failed to save service: ${error.message}`);
+      } else { 
+        refreshData(); 
+        setIsModalOpen(false); 
+      }
     };
     return <div className="space-y-4">
       <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Title"/>
@@ -723,15 +753,35 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     const [emoji, setEmoji] = useState(item?.emoji || '🎯');
     const [category, setCategory] = useState(item?.category || '');
     const [desc, setDesc] = useState(item?.description || '');
+    const [videoUrl, setVideoUrl] = useState(item?.video_url || '');
+    const [url, setUrl] = useState(item?.url || '#');
     const save = async () => {
-      const data = { title, emoji, category, description: desc };
-      const { error } = item ? await supabase.from('portfolio').update(data).eq('id', item.id) : await supabase.from('portfolio').insert([data]);
-      if (error) alert(error.message); else { refreshData(); setIsModalOpen(false); }
+      const data = { 
+        title, 
+        emoji, 
+        category, 
+        description: desc, 
+        video_url: videoUrl, 
+        url,
+        sort_order: item?.sort_order || 0 
+      };
+      const { error } = (item && isUUID(item.id)) 
+        ? await supabase.from('portfolio').update(data).eq('id', item.id) 
+        : await supabase.from('portfolio').insert([data]);
+      if (error) {
+        console.error('Error saving portfolio:', error);
+        alert(`Failed to save portfolio: ${error.message}`);
+      } else { 
+        refreshData(); 
+        setIsModalOpen(false); 
+      }
     };
     return <div className="space-y-4">
       <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Title"/>
       <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={emoji} onChange={e=>setEmoji(e.target.value)} placeholder="Emoji"/>
       <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={category} onChange={e=>setCategory(e.target.value)} placeholder="Category"/>
+      <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={url} onChange={e=>setUrl(e.target.value)} placeholder="External Link URL"/>
+      <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={videoUrl} onChange={e=>setVideoUrl(e.target.value)} placeholder="YouTube Video URL (optional)"/>
       <textarea className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Description"/>
       <button onClick={save} className="w-full bg-brand p-2 rounded font-bold hover:bg-opacity-90">Save</button>
     </div>;
@@ -744,9 +794,21 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     const [featured, setFeatured] = useState(item?.featured || false);
     const [features, setFeatures] = useState(JSON.stringify(item?.features || ['+ Feature 1']));
     const save = async () => {
-      const data = { name, price: Number(price), period, featured, features: JSON.parse(features) };
-      const { error } = item ? await supabase.from('pricing').update(data).eq('id', item.id) : await supabase.from('pricing').insert([data]);
-      if (error) alert(error.message); else { refreshData(); setIsModalOpen(false); }
+      try {
+        const data = { name, price: Number(price), period, featured, features: JSON.parse(features), sort_order: item?.sort_order || 0 };
+        const { error } = (item && isUUID(item.id)) 
+          ? await supabase.from('pricing').update(data).eq('id', item.id) 
+          : await supabase.from('pricing').insert([data]);
+        if (error) {
+          console.error('Error saving pricing:', error);
+          alert(`Failed to save pricing: ${error.message}`);
+        } else { 
+          refreshData(); 
+          setIsModalOpen(false); 
+        }
+      } catch (e: any) {
+        alert(`Invalid features format. Must be JSON array. Error: ${e.message}`);
+      }
     };
     return <div className="space-y-4">
       <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={name} onChange={e=>setName(e.target.value)} placeholder="Name"/>
@@ -764,33 +826,33 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     <div className="fixed inset-0 z-[100] bg-[#0d1330] text-white flex flex-col font-sans">
       {!isAuthenticated ? (
         <div className="flex-grow flex items-center justify-center p-6">
-          <form onSubmit={handleLogin} className="w-full max-w-sm glass-card border-white/20 bg-white/5 p-8 space-y-6">
-            <h2 className="text-3xl font-display font-black text-center mb-8">Admin Login</h2>
+          <form onSubmit={handleLogin} className="w-full max-w-sm bg-white/5 backdrop-blur-xl border border-white/20 p-8 space-y-6 rounded-2xl shadow-2xl">
+            <h2 className="text-3xl font-display font-black text-center mb-8 text-white">Admin Login</h2>
             <div className="space-y-5">
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold tracking-widest text-white/60 ml-1">Admin Email</label>
+                <label className="text-[11px] uppercase font-bold tracking-widest text-white/70 ml-1">Admin Email</label>
                 <input 
                   type="email" 
                   placeholder="Enter email" 
-                  className="w-full p-4 bg-white/5 border-2 border-white/20 rounded-xl text-white placeholder:text-white/30 focus:border-brand focus:bg-white/10 outline-none transition-all" 
+                  className="w-full p-4 bg-white/10 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:border-brand focus:bg-white/20 focus:ring-1 focus:ring-brand/50 outline-none transition-all" 
                   value={email} 
                   onChange={e=>setEmail(e.target.value)}
                 />
                 <p className="text-[10px] text-white/40 ml-1 italic">Use your registered staff email address.</p>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold tracking-widest text-white/60 ml-1">Secure Password</label>
+                <label className="text-[11px] uppercase font-bold tracking-widest text-white/70 ml-1">Secure Password</label>
                 <input 
                   type="password" 
                   placeholder="Enter password" 
-                  className="w-full p-4 bg-white/5 border-2 border-white/20 rounded-xl text-white placeholder:text-white/30 focus:border-brand focus:bg-white/10 outline-none transition-all" 
+                  className="w-full p-4 bg-white/10 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:border-brand focus:bg-white/20 focus:ring-1 focus:ring-brand/50 outline-none transition-all" 
                   value={password} 
                   onChange={e=>setPassword(e.target.value)}
                 />
                 <p className="text-[10px] text-white/40 ml-1 italic">Password must be at least 8 characters.</p>
               </div>
             </div>
-            <button className="w-full bg-brand py-4 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">Sign In</button>
+            <button className="w-full bg-brand py-4 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-brand/20">Sign In</button>
             <button type="button" onClick={onClose} className="w-full text-white/50 text-sm hover:text-white transition-colors">Cancel</button>
           </form>
         </div>
@@ -884,11 +946,19 @@ export default function App() {
         supabase.from('pricing').select('*').order('sort_order', { ascending: true })
       ]);
       
+      if (sRes.error) console.error('Services fetch error:', sRes.error);
+      if (pRes.error) console.error('Portfolio fetch error:', pRes.error);
+      if (prRes.error) console.error('Pricing fetch error:', prRes.error);
+
       setDbData({
         services: (sRes.data && sRes.data.length) ? sRes.data : FALLBACK_SERVICES,
         portfolio: (pRes.data && pRes.data.length) ? pRes.data : FALLBACK_PORTFOLIO,
         pricing: (prRes.data && prRes.data.length) ? prRes.data : FALLBACK_PRICING
       });
+
+      if (pRes.error && pRes.error.message.includes('not found')) {
+        console.warn('The portfolio table seems to be missing in Supabase.');
+      }
     } catch (e) {
       console.warn("Supabase load failed, using fallbacks", e);
     }

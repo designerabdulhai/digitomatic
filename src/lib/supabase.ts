@@ -6,7 +6,7 @@ const supabaseKey = 'sb_publishable_Kz4LmfVEV9S3E6PIDmcpDQ_sx7DXEzJ';
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export type Service = {
-  id: number;
+  id: string | number;
   title: string;
   icon: string;
   description: string;
@@ -14,17 +14,18 @@ export type Service = {
 };
 
 export type Portfolio = {
-  id: number;
+  id: string | number;
   title: string;
   emoji: string;
   category: string;
   description: string;
   url: string;
+  video_url?: string;
   sort_order: number;
 };
 
 export type Pricing = {
-  id: number;
+  id: string | number;
   name: string;
   price: number;
   period: string;
@@ -34,7 +35,7 @@ export type Pricing = {
 };
 
 export type Message = {
-  id: number;
+  id: string | number;
   name: string;
   email: string;
   phone: string;
