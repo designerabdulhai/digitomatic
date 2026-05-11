@@ -19,33 +19,58 @@ import {
   Zap,
   LogOut
 } from 'lucide-react';
-import { supabase, Service, Portfolio as PortfolioType, Pricing as PricingType, Message } from './lib/supabase';
+import { supabase, Service, Portfolio as PortfolioType, Pricing as PricingType, Message, SiteSettings, ClientLogo, Testimonial } from './lib/supabase';
 
 // --- DATA CONSTANTS (FALLBACKS) ---
+const FALLBACK_SETTINGS: SiteSettings = {
+  id: 1,
+  site_name: 'Digitomatic',
+  logo_url: '',
+  contact_email: 'hello@digitomatic.com',
+  contact_phone: '+880 1234 567 890',
+  contact_address: 'Bangladesh',
+  facebook_url: '#',
+  instagram_url: '#',
+  linkedin_url: '#',
+  hero_video_url: ''
+};
+
+const FALLBACK_CLIENTS: ClientLogo[] = [
+  { id: 'f-c-1', name: 'HubSpot', logo_url: '', sort_order: 1 },
+  { id: 'f-c-2', name: 'Google', logo_url: '', sort_order: 2 },
+  { id: 'f-c-3', name: 'Amazon', logo_url: '', sort_order: 3 },
+  { id: 'f-c-4', name: 'Meta', logo_url: '', sort_order: 4 },
+];
+
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
+  { id: 'f-t-1', client_name: 'David Chen', client_role: 'Founder, Techflow', content: 'Digitomatic completely transformed our brand identity. Their attention to detail is unmatched.', rating: 5, sort_order: 1 },
+  { id: 'f-t-2', client_name: 'Sarah Jenkins', client_role: 'Marketing Lead', content: 'The web platform they built for us is lightning fast and our conversion rates have tripled.', rating: 5, sort_order: 2 },
+];
+
 const FALLBACK_SERVICES: Service[] = [
-  { id: 1, title: 'App Development', icon: '📱', description: 'Bespoke mobile applications crafted for high performance and user engagement.', sort_order: 1 },
-  { id: 2, title: 'Web Development', icon: '🌐', description: 'Scalable and fast web platforms built with modern technologies likes React.', sort_order: 2 },
-  { id: 3, title: 'System Development', icon: '⚙️', description: 'Internal tools and enterprise software designed to streamline operations.', sort_order: 3 },
-  { id: 4, title: 'UI/UX Design', icon: '🎨', description: 'Human-centric design that prioritizes usability and aesthetic excellence.', sort_order: 4 },
-  { id: 5, title: 'Digital Marketing', icon: '🚀', description: 'Data-driven strategies to grow your brand and reach new audiences.', sort_order: 5 },
-  { id: 6, title: 'Branding', icon: '✨', description: 'Defining your identity through creative storytelling and visual impact.', sort_order: 6 },
+  { id: 'f-s-1', title: 'App Development', icon: '📱', description: 'Bespoke mobile applications crafted for high performance and user engagement.', sort_order: 1 },
+  { id: 'f-s-2', title: 'Web Development', icon: '🌐', description: 'Scalable and fast web platforms built with modern technologies likes React.', sort_order: 2 },
+  { id: 'f-s-3', title: 'System Development', icon: '⚙️', description: 'Internal tools and enterprise software designed to streamline operations.', sort_order: 3 },
+  { id: 'f-s-4', title: 'UI/UX Design', icon: '🎨', description: 'Human-centric design that prioritizes usability and aesthetic excellence.', sort_order: 4 },
+  { id: 'f-s-5', title: 'Digital Marketing', icon: '🚀', description: 'Data-driven strategies to grow your brand and reach new audiences.', sort_order: 5 },
+  { id: 'f-s-6', title: 'Branding', icon: '✨', description: 'Defining your identity through creative storytelling and visual impact.', sort_order: 6 },
 ];
 
 const FALLBACK_PORTFOLIO: PortfolioType[] = [
-  { id: 1, title: 'CryptoPulse Dashboard', emoji: '💰', category: 'Web App', description: 'A real-time cryptocurrency tracking platform for traders.', url: '#', sort_order: 1 },
-  { id: 2, title: 'EcoTrack Mobile', emoji: '🌿', category: 'Mobile App', description: 'Helping users measure their carbon footprint with ease.', url: '#', sort_order: 2 },
-  { id: 3, title: 'Luxe Furniture Brand', emoji: '🪑', category: 'Branding', description: 'Minimalist visual identity for a premium furniture retailer.', url: '#', sort_order: 3 },
+  { id: 'f-p-1', title: 'CryptoPulse Dashboard', emoji: '💰', category: 'Web App', description: 'A real-time cryptocurrency tracking platform for traders.', url: '#', sort_order: 1 },
+  { id: 'f-p-2', title: 'EcoTrack Mobile', emoji: '🌿', category: 'Mobile App', description: 'Helping users measure their carbon footprint with ease.', url: '#', sort_order: 2 },
+  { id: 'f-p-3', title: 'Luxe Furniture Brand', emoji: '🪑', category: 'Branding', description: 'Minimalist visual identity for a premium furniture retailer.', url: '#', sort_order: 3 },
 ];
 
 const FALLBACK_PRICING: PricingType[] = [
-  { id: 1, name: 'Startup', price: 99, period: '/month', features: ['+ Web Design', '+ 5 Pages', '- Custom App', '+ Basic SEO'], featured: false, sort_order: 1 },
-  { id: 2, name: 'Professional', price: 299, period: '/month', features: ['+ Full Stack Dev', '+ 20 Pages', '+ Custom Designs', '+ Advanced SEO'], featured: true, sort_order: 2 },
-  { id: 3, name: 'Enterprise', price: 999, period: 'one-time', features: ['+ Everything Included', '+ Priority Support', '+ Scalable Infra', '+ Cloud Management'], featured: false, sort_order: 3 },
+  { id: 'f-pr-1', name: 'Startup', price: 99, period: '/month', features: ['+ Web Design', '+ 5 Pages', '- Custom App', '+ Basic SEO'], featured: false, sort_order: 1 },
+  { id: 'f-pr-2', name: 'Professional', price: 299, period: '/month', features: ['+ Full Stack Dev', '+ 20 Pages', '+ Custom Designs', '+ Advanced SEO'], featured: true, sort_order: 2 },
+  { id: 'f-pr-3', name: 'Enterprise', price: 999, period: 'one-time', features: ['+ Everything Included', '+ Priority Support', '+ Scalable Infra', '+ Cloud Management'], featured: false, sort_order: 3 },
 ];
 
 // --- COMPONENTS ---
 
-const Navbar = () => {
+const Navbar = ({ settings }: { settings: SiteSettings }) => {
   const [isSticky, setIsSticky] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -67,8 +92,14 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isSticky ? 'bg-white shadow-sm py-4' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <a href="#" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-brand rounded flex items-center justify-center text-white text-lg font-black">D</div>
-          <span className={`${isSticky ? 'text-dark' : 'text-white'} font-display font-black text-xl tracking-tighter transition-colors`}>Digitomatic</span>
+          {settings.logo_url ? (
+            <img src={settings.logo_url} alt={settings.site_name} className="h-8 w-auto object-contain" />
+          ) : (
+            <div className="w-8 h-8 bg-brand rounded flex items-center justify-center text-white text-lg font-black">
+              {settings.site_name.charAt(0)}
+            </div>
+          )}
+          <span className={`${isSticky ? 'text-dark' : 'text-white'} font-display font-black text-xl tracking-tighter transition-colors`}>{settings.site_name}</span>
         </a>
         
         <div className={`hidden md:flex items-center space-x-10 ${isSticky ? 'text-dark' : 'text-white'} transition-colors`}>
@@ -108,7 +139,22 @@ const Navbar = () => {
   );
 };
 
-const Hero = () => {
+const Hero = ({ settings }: { settings: SiteSettings }) => {
+  const getYoutubeEmbedUrl = (url: string) => {
+    if (!url) return null;
+    let videoId = '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      videoId = match[2];
+    } else {
+      return null;
+    }
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1`;
+  };
+
+  const videoUrl = getYoutubeEmbedUrl(settings.hero_video_url || '');
+
   return (
     <section className="relative hero-gradient pt-40 md:pt-56 pb-20 overflow-hidden text-white">
       {/* Subtle Decorative elements */}
@@ -142,8 +188,19 @@ const Hero = () => {
           className="mt-24 mx-auto max-w-[1000px]"
         >
           <div className="bg-[#0f172a] rounded-t-[20px] p-2 shadow-hero-mockup border border-white/5 relative">
-            <div className="bg-[#020617] rounded-lg aspect-[21/9] flex items-center justify-center overflow-hidden">
-              <div className="text-white/5 font-mono text-[8vw] font-black opacity-20 uppercase tracking-tighter">Digitomatic</div>
+            <div className="bg-[#020617] rounded-lg aspect-[21/9] flex items-center justify-center overflow-hidden relative">
+              {videoUrl ? (
+                <iframe 
+                  className="absolute inset-0 w-full h-full pointer-events-none scale-110"
+                  src={videoUrl}
+                  title="Hero Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <div className="text-white/5 font-mono text-[8vw] font-black opacity-20 uppercase tracking-tighter">Digitomatic</div>
+              )}
             </div>
           </div>
         </motion.div>
@@ -193,25 +250,33 @@ const CountUp = ({ end, duration = 2, suffix = '' }: { end: number, duration?: n
   return <span ref={setRef}>{count}{suffix}</span>;
 };
 
-const ClientLogos = () => {
-  const logos = ['HubSpot', 'Auping', 'Heineken', 'EXPOMARK', 'ASTRA-NET', 'Google', 'Amazon', 'Meta'];
+const ClientLogos = ({ clients }: { clients: ClientLogo[] }) => {
   const [isHovered, setIsHovered] = useState(false);
   
   return (
-    <section className="bg-white py-12 border-b border-[#f0f2f8] overflow-hidden">
+    <section className="bg-white py-14 border-b border-[#f0f2f8] overflow-hidden">
       <div 
         className="relative flex"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className={`animate-marquee flex gap-12 md:gap-24 items-center ${isHovered ? 'pause-marquee' : ''}`}>
-          {[...logos, ...logos].map((logo, idx) => (
-            <span 
-              key={idx} 
-              className={`text-2xl md:text-3xl font-display font-black tracking-tighter transition-all duration-500 whitespace-nowrap ${isHovered ? 'opacity-100 grayscale-0 text-brand' : 'opacity-40 grayscale text-dark/50'}`}
-            >
-              {logo}
-            </span>
+          {[...clients, ...clients].map((client, idx) => (
+            <div key={idx} className="flex items-center gap-3">
+              {client.logo_url ? (
+                <img 
+                  src={client.logo_url} 
+                  alt={client.name} 
+                  className={`h-8 w-auto object-contain transition-all duration-500 ${isHovered ? 'opacity-100 grayscale-0' : 'opacity-40 grayscale'}`} 
+                />
+              ) : (
+                <span 
+                  className={`text-2xl md:text-3xl font-display font-black tracking-tighter transition-all duration-500 whitespace-nowrap ${isHovered ? 'opacity-100 grayscale-0 text-brand' : 'opacity-40 grayscale text-dark/50'}`}
+                >
+                  {client.name}
+                </span>
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -606,21 +671,34 @@ const Contact = () => {
   );
 };
 
-const Footer = ({ onAdminClick }: { onAdminClick: () => void }) => {
+const Footer = ({ onAdminClick, settings }: { onAdminClick: () => void, settings: SiteSettings }) => {
   return (
     <footer className="bg-white pt-20 pb-10 border-t border-[#f0f2f8]">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-1 md:col-span-1">
-          <a href="#" className="font-display font-extrabold text-3xl text-brand tracking-tight mb-6 block">Digitomatic</a>
+          <a href="#" className="flex items-center gap-3 mb-6">
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt={settings.site_name} className="h-8 w-auto object-contain" />
+            ) : (
+              <div className="w-8 h-8 bg-brand rounded flex items-center justify-center text-white text-lg font-black">
+                {settings.site_name.charAt(0)}
+              </div>
+            )}
+            <span className="font-display font-extrabold text-3xl text-brand tracking-tight">{settings.site_name}</span>
+          </a>
           <p className="text-muted leading-relaxed mb-8 font-medium">
             Expertly crafted digital solutions for visionary brands. Let's create something extraordinary together.
           </p>
           <div className="flex gap-4">
-            {[Facebook, Instagram, Linkedin].map((Icon, idx) => (
-              <a key={idx} href="#" className="w-10 h-10 rounded-full border border-[#f0f2f8] flex items-center justify-center text-dark hover:bg-brand hover:text-white transition-all">
-                <Icon size={18} />
-              </a>
-            ))}
+            <a href={settings.facebook_url} target="_blank" rel="noopener" className="w-10 h-10 rounded-full border border-[#f0f2f8] flex items-center justify-center text-dark hover:bg-brand hover:text-white transition-all">
+              <Facebook size={18} />
+            </a>
+            <a href={settings.instagram_url} target="_blank" rel="noopener" className="w-10 h-10 rounded-full border border-[#f0f2f8] flex items-center justify-center text-dark hover:bg-brand hover:text-white transition-all">
+              <Instagram size={18} />
+            </a>
+            <a href={settings.linkedin_url} target="_blank" rel="noopener" className="w-10 h-10 rounded-full border border-[#f0f2f8] flex items-center justify-center text-dark hover:bg-brand hover:text-white transition-all">
+              <Linkedin size={18} />
+            </a>
           </div>
         </div>
 
@@ -647,14 +725,14 @@ const Footer = ({ onAdminClick }: { onAdminClick: () => void }) => {
         <div>
           <h4 className="font-display font-bold text-xl mb-6">Connect</h4>
           <ul className="space-y-4 text-muted font-medium">
-            <li className="flex items-center gap-3"><Mail size={18} /> hello@digitomatic.com</li>
-            <li className="flex items-center gap-3"><Phone size={18} /> +880 1234 567 890</li>
-            <li className="text-sm mt-4 italic">Built with ❤️ in Bangladesh</li>
+            <li className="flex items-center gap-3"><Mail size={18} /> {settings.contact_email}</li>
+            <li className="flex items-center gap-3"><Phone size={18} /> {settings.contact_phone}</li>
+            <li className="text-sm mt-4 italic">Built with ❤️ in {settings.contact_address}</li>
           </ul>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-[#f0f2f8] flex flex-col md:flex-row justify-between items-center gap-4 text-muted font-medium text-sm">
-        <div>&copy; 2025 Digitomatic. All rights reserved.</div>
+        <div>&copy; {new Date().getFullYear()} {settings.site_name}. All rights reserved.</div>
         <button 
           onClick={onAdminClick}
           className="text-[10px] uppercase tracking-widest hover:text-brand transition-colors font-bold opacity-60 hover:opacity-100"
@@ -668,7 +746,7 @@ const Footer = ({ onAdminClick }: { onAdminClick: () => void }) => {
 
 // --- ADMIN PANEL ---
 
-const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData }: any) => {
+const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, settings, dbData, refreshData, setDbData }: any) => {
   const [activeTab, setActiveTab] = useState('Services');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
@@ -706,21 +784,164 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     setIsAuthenticated(false);
   };
 
-  const isUUID = (id: any) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
+  const isDbId = (id: any) => {
+    if (id === undefined || id === null) return false;
+    const sId = String(id);
+    // Real database items in this app use UUIDs (strings) or serial IDs (numbers/numeric strings)
+    // Fallback items are specifically prefixed with 'f-'
+    return !sId.startsWith('f-');
+  };
 
   const handleDelete = async (table: string, id: any) => {
-    if (confirm('Are you sure?')) {
-      if (!isUUID(id) && table !== 'messages') {
-        alert('Cannot delete fallback data. This item is not yet in the database.');
-        return;
-      }
-      const { error } = await supabase.from(table).delete().eq('id', id);
-      if (error) alert(error.message);
-      else {
+    console.log(`Attempting to delete from ${table} with id:`, id);
+    if (!confirm('Are you sure you want to delete this item?')) return;
+
+    if (!isDbId(id) && table !== 'messages') {
+      alert('This is local fallback data. It will disappear automatically once you add your own items to the database.');
+      return;
+    }
+
+    // Optimistic UI update
+    if (table === 'messages') {
+      setMessages(prev => prev.filter(m => m.id !== id));
+    } else {
+      const mapping: Record<string, string> = {
+        'client_logos': 'clients',
+        'testimonials': 'testimonials',
+        'services': 'services',
+        'portfolio': 'portfolio',
+        'pricing': 'pricing'
+      };
+      const key = mapping[table] || table;
+      setDbData((prev: any) => ({
+        ...prev,
+        [key]: prev[key]?.filter((item: any) => item.id !== id) || []
+      }));
+    }
+
+    try {
+      console.log(`Executing Supabase delete on ${table} for ID: ${id}`);
+      // Requesting 'representation' or just checking results
+      const { error, status, statusText } = await supabase
+        .from(table)
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error(`Supabase delete error:`, error);
+        alert(`Delete failed: ${error.message} (Code: ${error.code})`);
+        refreshData(); // Rollback to actual db state
+      } else {
+        console.log(`Supabase delete status: ${status} ${statusText}`);
+        // Note: status 204 or 200 often means success, but rows affected might be 0 if RLS blocks it.
+        // If the item comes back on next refresh, it's definitely an RLS/Policy issue.
         refreshData();
         if (table === 'messages') fetchMessages();
       }
+    } catch (err: any) {
+      console.error('Unexpected error during delete:', err);
+      alert(`An unexpected error occurred: ${err.message}`);
+      refreshData();
     }
+  };
+
+  const ClientLogoForm = ({ item }: any) => {
+    const [name, setName] = useState(item?.name || '');
+    const [logoUrl, setLogoUrl] = useState(item?.logo_url || '');
+    const [uploading, setUploading] = useState(false);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `clients/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('All Picture').upload(filePath, file);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('All Picture').getPublicUrl(filePath);
+        setLogoUrl(publicUrl);
+      } catch (error: any) {
+        alert(error.message);
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    const save = async () => {
+      const data = { name, logo_url: logoUrl, sort_order: item?.sort_order || 0 };
+      const { error } = (item && isDbId(item.id)) 
+        ? await supabase.from('client_logos').update(data).eq('id', item.id) 
+        : await supabase.from('client_logos').insert([data]);
+      if (error) alert(error.message);
+      else { refreshData(); setIsModalOpen(false); }
+    };
+
+    return <div className="space-y-4">
+      <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={name} onChange={e=>setName(e.target.value)} placeholder="Client Name"/>
+      <div className="flex items-center gap-4">
+        {logoUrl && <img src={logoUrl} className="w-12 h-12 object-contain bg-white/5 rounded" />}
+        <input type="file" onChange={handleFileUpload} disabled={uploading} className="text-xs" />
+      </div>
+      <button onClick={save} disabled={uploading} className="w-full bg-brand p-2 rounded font-bold hover:bg-opacity-90">Save</button>
+    </div>;
+  };
+
+  const TestimonialForm = ({ item }: any) => {
+    const [name, setName] = useState(item?.client_name || '');
+    const [role, setRole] = useState(item?.client_role || '');
+    const [content, setContent] = useState(item?.content || '');
+    const [rating, setRating] = useState(item?.rating || 5);
+    const [avatarUrl, setAvatarUrl] = useState(item?.avatar_url || '');
+    const [uploading, setUploading] = useState(false);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('All Picture').upload(filePath, file);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('All Picture').getPublicUrl(filePath);
+        setAvatarUrl(publicUrl);
+      } catch (error: any) {
+        alert(error.message);
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    const save = async () => {
+      const data = { 
+        client_name: name, 
+        client_role: role, 
+        content, 
+        rating: Number(rating), 
+        avatar_url: avatarUrl,
+        sort_order: item?.sort_order || 0 
+      };
+      const { error } = (item && isDbId(item.id)) 
+        ? await supabase.from('testimonials').update(data).eq('id', item.id) 
+        : await supabase.from('testimonials').insert([data]);
+      if (error) alert(error.message);
+      else { refreshData(); setIsModalOpen(false); }
+    };
+
+    return <div className="space-y-4">
+      <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={name} onChange={e=>setName(e.target.value)} placeholder="Client Name"/>
+      <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={role} onChange={e=>setRole(e.target.value)} placeholder="Role/Company"/>
+      <textarea className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={content} onChange={e=>setContent(e.target.value)} placeholder="Testimonial Content"/>
+      <input className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" type="number" min="1" max="5" value={rating} onChange={e=>setRating(Number(e.target.value))} placeholder="Rating (1-5)"/>
+      <div className="flex items-center gap-4">
+        {avatarUrl && <img src={avatarUrl} className="w-12 h-12 rounded-full object-cover bg-white/5" />}
+        <input type="file" onChange={handleFileUpload} disabled={uploading} className="text-xs" />
+      </div>
+      <button onClick={save} disabled={uploading} className="w-full bg-brand p-2 rounded font-bold hover:bg-opacity-90">Save</button>
+    </div>;
   };
 
   const ServiceForm = ({ item }: any) => {
@@ -729,7 +950,7 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     const [desc, setDesc] = useState(item?.description || '');
     const save = async () => {
       const data = { title, icon, description: desc, sort_order: item?.sort_order || 0 };
-      const { error } = (item && isUUID(item.id)) 
+      const { error } = (item && isDbId(item.id)) 
         ? await supabase.from('services').update(data).eq('id', item.id) 
         : await supabase.from('services').insert([data]);
       if (error) {
@@ -765,12 +986,12 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
         url,
         sort_order: item?.sort_order || 0 
       };
-      const { error } = (item && isUUID(item.id)) 
+      const { error } = (item && isDbId(item.id)) 
         ? await supabase.from('portfolio').update(data).eq('id', item.id) 
         : await supabase.from('portfolio').insert([data]);
       if (error) {
         console.error('Error saving portfolio:', error);
-        alert(`Failed to save portfolio: ${error.message}`);
+        alert(`Failed to save portfolio: ${error.message}. TIP: Ensure the 'portfolio' table has columns: title, emoji, category, description, video_url, url, sort_order.`);
       } else { 
         refreshData(); 
         setIsModalOpen(false); 
@@ -796,7 +1017,7 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
     const save = async () => {
       try {
         const data = { name, price: Number(price), period, featured, features: JSON.parse(features), sort_order: item?.sort_order || 0 };
-        const { error } = (item && isUUID(item.id)) 
+        const { error } = (item && isDbId(item.id)) 
           ? await supabase.from('pricing').update(data).eq('id', item.id) 
           : await supabase.from('pricing').insert([data]);
         if (error) {
@@ -818,6 +1039,130 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
       <textarea className="w-full p-2 bg-white/10 border border-white/20 rounded text-white" value={features} onChange={e=>setFeatures(e.target.value)} placeholder='Features JSON ["+ Check", "- X"]'/>
       <button onClick={save} className="w-full bg-brand p-2 rounded font-bold hover:bg-opacity-90">Save</button>
     </div>;
+  };
+
+  const SettingsForm = ({ item, refreshData }: any) => {
+    const [siteName, setSiteName] = useState(item?.site_name || '');
+    const [logoUrl, setLogoUrl] = useState(item?.logo_url || '');
+    const [email, setEmail] = useState(item?.contact_email || '');
+    const [phone, setPhone] = useState(item?.contact_phone || '');
+    const [address, setAddress] = useState(item?.contact_address || '');
+    const [fb, setFb] = useState(item?.facebook_url || '');
+    const [ig, setIg] = useState(item?.instagram_url || '');
+    const [li, setLi] = useState(item?.linkedin_url || '');
+    const [videoUrl, setVideoUrl] = useState(item?.hero_video_url || '');
+    const [uploading, setUploading] = useState(false);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `logos/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('All Picture')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('All Picture')
+          .getPublicUrl(filePath);
+
+        setLogoUrl(publicUrl);
+        alert('Logo uploaded successfully! Click Save to apply.');
+      } catch (error: any) {
+        alert(`Error uploading logo: ${error.message}`);
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    const save = async () => {
+      const data = { 
+        site_name: siteName, 
+        logo_url: logoUrl, 
+        contact_email: email, 
+        contact_phone: phone, 
+        contact_address: address,
+        facebook_url: fb,
+        instagram_url: ig,
+        linkedin_url: li,
+        hero_video_url: videoUrl
+      };
+      
+      const { error } = await supabase.from('site_settings').upsert({ id: 1, ...data });
+      if (error) {
+        console.error('Error saving settings:', error);
+        alert(`Failed to save settings: ${error.message}`);
+      } else { 
+        refreshData(); 
+        alert('Settings saved successfully!');
+      }
+    };
+
+    return (
+      <div className="space-y-6 max-w-2xl mx-auto p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 leading-tight">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Site Name</label>
+            <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand" value={siteName} onChange={e=>setSiteName(e.target.value)} placeholder="Digitomatic"/>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Logo Image</label>
+            <div className="flex items-center gap-4 h-[58px] bg-white/5 border border-white/10 rounded-xl px-4">
+              {logoUrl ? <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-contain bg-white/10 p-1" /> : <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10" />}
+              <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="logo-upload" />
+              <label htmlFor="logo-upload" className="cursor-pointer text-[11px] font-bold uppercase tracking-widest hover:text-brand transition-colors">
+                {uploading ? 'Wait...' : 'Update'}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Contact Email</label>
+            <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand" value={email} onChange={e=>setEmail(e.target.value)} placeholder="hello@company.com"/>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Contact Phone</label>
+            <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+880 ..."/>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Address</label>
+          <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand" value={address} onChange={e=>setAddress(e.target.value)} placeholder="123 Street, Dhaka"/>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Facebook</label>
+            <input className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand text-xs" value={fb} onChange={e=>setFb(e.target.value)} placeholder="URL"/>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Instagram</label>
+            <input className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand text-xs" value={ig} onChange={e=>setIg(e.target.value)} placeholder="URL"/>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">LinkedIn</label>
+            <input className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand text-xs" value={li} onChange={e=>setLi(e.target.value)} placeholder="URL"/>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] uppercase font-bold tracking-widest text-white/40">Hero YouTube Video URL</label>
+          <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-brand" value={videoUrl} onChange={e=>setVideoUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..."/>
+        </div>
+
+        <button onClick={save} className="w-full bg-brand py-5 rounded-button font-black text-xs uppercase tracking-widest hover:bg-opacity-90 shadow-xl shadow-brand/20 mt-4 transition-all">Save Changes</button>
+      </div>
+    );
   };
 
   if (!isOpen) return null;
@@ -862,7 +1207,7 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
             <div className="flex items-center gap-8">
               <h2 className="text-2xl font-display font-black tracking-tight">Digitomatic Panel</h2>
               <nav className="flex gap-4">
-                {['Services', 'Portfolio', 'Pricing', 'Messages'].map(t => (
+                {['Services', 'Portfolio', 'Pricing', 'Messages', 'Clients', 'Testimonials', 'Settings'].map(t => (
                   <button key={t} onClick={() => setActiveTab(t)} className={`px-4 py-2 rounded-lg font-bold transition-all ${activeTab === t ? 'bg-brand' : 'hover:bg-white/5'}`}>{t}</button>
                 ))}
               </nav>
@@ -875,15 +1220,22 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
 
           <main className="flex-grow p-8 overflow-y-auto">
             <div className="max-w-6xl mx-auto">
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-3xl font-display font-bold">{activeTab}</h3>
-                {activeTab !== 'Messages' && (
-                  <button onClick={() => { setEditingItem(null); setIsModalOpen(true); }} className="bg-brand px-6 py-2 rounded-lg font-bold flex items-center gap-2"><Plus size={20}/> Add New</button>
-                )}
-              </div>
+              {activeTab === 'Settings' ? (
+                <>
+                  <h3 className="text-3xl font-display font-bold mb-8">Site Settings</h3>
+                  <SettingsForm item={settings} refreshData={refreshData} />
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-3xl font-display font-bold">{activeTab}</h3>
+                    {(activeTab !== 'Messages' && activeTab !== 'Settings') && (
+                      <button onClick={() => { setEditingItem(null); setIsModalOpen(true); }} className="bg-brand px-6 py-2 rounded-lg font-bold flex items-center gap-2"><Plus size={20}/> Add New</button>
+                    )}
+                  </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
                   <thead className="bg-white/5 font-bold">
                     <tr>
                       <th className="p-4">ID</th>
@@ -892,19 +1244,36 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 text-sm">
-                    {(activeTab === 'Services' ? services : activeTab === 'Portfolio' ? portfolio : activeTab === 'Pricing' ? pricing : messages).map((item: any) => (
+                    {(
+                      activeTab === 'Services' ? services : 
+                      activeTab === 'Portfolio' ? portfolio : 
+                      activeTab === 'Pricing' ? pricing : 
+                      activeTab === 'Clients' ? dbData.clients :
+                      activeTab === 'Testimonials' ? dbData.testimonials :
+                      messages
+                    ).map((item: any) => (
                       <tr key={item.id} className="hover:bg-white/5 transition-all">
                         <td className="p-4 text-white/40">{item.id}</td>
                         <td className="p-4">
-                          <div className="font-bold">{item.title || item.name || item.service}</div>
-                          <div className="text-white/60 line-clamp-1">{item.description || item.message || `$${item.price}`}</div>
+                          <div className="font-bold">{item.title || item.name || item.client_name || item.service}</div>
+                          <div className="text-white/60 line-clamp-1">{item.description || item.message || item.content || `$${item.price}`}</div>
                         </td>
                         <td className="p-4">
                           <div className="flex gap-3">
                             {activeTab !== 'Messages' && (
                               <button onClick={()=>{ setEditingItem(item); setIsModalOpen(true); }} className="p-2 hover:bg-brand rounded transition-all">Edit</button>
                             )}
-                            <button onClick={()=>handleDelete(activeTab.toLowerCase(), item.id)} className="p-2 hover:bg-red-500/20 text-red-400 rounded transition-all">Delete</button>
+                            <button onClick={()=>{
+                              const tableMap: Record<string, string> = {
+                                'Services': 'services',
+                                'Portfolio': 'portfolio',
+                                'Pricing': 'pricing',
+                                'Messages': 'messages',
+                                'Clients': 'client_logos',
+                                'Testimonials': 'testimonials'
+                              };
+                              handleDelete(tableMap[activeTab] || activeTab.toLowerCase(), item.id);
+                            }} className="p-2 hover:bg-red-500/20 text-red-400 rounded transition-all">Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -912,8 +1281,10 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
                   </tbody>
                 </table>
               </div>
-            </div>
-          </main>
+            </>
+          )}
+        </div>
+      </main>
 
           <AnimatePresence>
             {isModalOpen && (
@@ -924,6 +1295,8 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
                   {activeTab === 'Services' && <ServiceForm item={editingItem} />}
                   {activeTab === 'Portfolio' && <PortfolioForm item={editingItem} />}
                   {activeTab === 'Pricing' && <PricingForm item={editingItem} />}
+                  {activeTab === 'Clients' && <ClientLogoForm item={editingItem} />}
+                  {activeTab === 'Testimonials' && <TestimonialForm item={editingItem} />}
                 </motion.div>
               </div>
             )}
@@ -936,24 +1309,40 @@ const AdminPanel = ({ isOpen, onClose, services, portfolio, pricing, refreshData
 
 export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [dbData, setDbData] = useState({ services: FALLBACK_SERVICES, portfolio: FALLBACK_PORTFOLIO, pricing: FALLBACK_PRICING });
+  const [dbData, setDbData] = useState({ 
+    services: FALLBACK_SERVICES, 
+    portfolio: FALLBACK_PORTFOLIO, 
+    pricing: FALLBACK_PRICING,
+    settings: FALLBACK_SETTINGS,
+    clients: FALLBACK_CLIENTS,
+    testimonials: FALLBACK_TESTIMONIALS
+  });
 
   const refreshData = async () => {
     try {
-      const [sRes, pRes, prRes] = await Promise.all([
+      const [sRes, pRes, prRes, stRes, cRes, tRes] = await Promise.all([
         supabase.from('services').select('*').order('sort_order', { ascending: true }),
         supabase.from('portfolio').select('*').order('sort_order', { ascending: true }),
-        supabase.from('pricing').select('*').order('sort_order', { ascending: true })
+        supabase.from('pricing').select('*').order('sort_order', { ascending: true }),
+        supabase.from('site_settings').select('*').single(),
+        supabase.from('client_logos').select('*').order('sort_order', { ascending: true }),
+        supabase.from('testimonials').select('*').order('sort_order', { ascending: true })
       ]);
       
       if (sRes.error) console.error('Services fetch error:', sRes.error);
       if (pRes.error) console.error('Portfolio fetch error:', pRes.error);
       if (prRes.error) console.error('Pricing fetch error:', prRes.error);
+      if (stRes.error && stRes.error.code !== 'PGRST116') console.error('Settings fetch error:', stRes.error);
+      if (cRes.error) console.error('Clients fetch error:', cRes.error);
+      if (tRes.error) console.error('Testimonials fetch error:', tRes.error);
 
       setDbData({
-        services: (sRes.data && sRes.data.length) ? sRes.data : FALLBACK_SERVICES,
-        portfolio: (pRes.data && pRes.data.length) ? pRes.data : FALLBACK_PORTFOLIO,
-        pricing: (prRes.data && prRes.data.length) ? prRes.data : FALLBACK_PRICING
+        services: (sRes.data && !sRes.error) ? (sRes.data.length ? sRes.data : []) : FALLBACK_SERVICES,
+        portfolio: (pRes.data && !pRes.error) ? (pRes.data.length ? pRes.data : []) : FALLBACK_PORTFOLIO,
+        pricing: (prRes.data && !prRes.error) ? (prRes.data.length ? prRes.data : []) : FALLBACK_PRICING,
+        settings: (stRes.data && !stRes.error) ? stRes.data : FALLBACK_SETTINGS,
+        clients: (cRes.data && !cRes.error) ? (cRes.data.length ? cRes.data : []) : FALLBACK_CLIENTS,
+        testimonials: (tRes.data && !tRes.error) ? (tRes.data.length ? tRes.data : []) : FALLBACK_TESTIMONIALS
       });
 
       if (pRes.error && pRes.error.message.includes('not found')) {
@@ -970,53 +1359,100 @@ export default function App() {
 
   return (
     <div className="min-h-screen selection:bg-brand selection:text-white">
-      <Navbar />
-      <Hero />
-      <ClientLogos />
+      <Navbar settings={dbData.settings} />
+      <Hero settings={dbData.settings} />
+      <ClientLogos clients={dbData.clients} />
       <About />
       <Services services={dbData.services} />
       <Portfolio portfolio={dbData.portfolio} />
       <CTASection />
       
       {/* Testimonials Trust Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="relative">
-            <div className="rounded-[40px] aspect-[4/5] bg-gradient-to-tr from-brand/20 to-indigo-50 border border-[#e8ecf8] overflow-hidden flex items-center justify-center text-[10rem]">
-              👥
+      <section className="py-32 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center mb-24">
+            <div className="relative">
+              <div className="rounded-[40px] aspect-[4/5] bg-gradient-to-tr from-brand/20 to-indigo-50 border border-[#e8ecf8] overflow-hidden flex items-center justify-center relative group">
+                <div className="absolute inset-0 bg-brand/5 group-hover:bg-brand/0 transition-colors duration-700"></div>
+                <span className="text-[10rem] relative z-10 filter drop-shadow-2xl">👥</span>
+              </div>
+              {/* Floating badges */}
+              <div className="absolute -bottom-8 -right-8 glass-card p-6 shadow-2xl animate-float">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <Check size={24}/>
+                  </div>
+                  <div>
+                    <div className="font-display font-black text-xl">Verified</div>
+                    <div className="text-[10px] text-muted font-bold uppercase tracking-widest">100+ Happy Clients</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <span className="section-tag">Direct Feedback</span>
+              <h2 className="section-title">› Clients Adore Our Solutions, And You Will Too</h2>
+              <p className="text-muted text-lg mb-12 leading-relaxed font-medium">
+                We aren't just a technical partner; we are your strategic ally. Our team is dedicated to your success, providing transparent communication and world-class expertise at every step.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-8 mb-12">
+                <div className="group">
+                  <div className="w-14 h-14 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mb-6 group-hover:bg-brand group-hover:text-white transition-all duration-500">
+                    <Zap size={24}/>
+                  </div>
+                  <h4 className="font-display font-black text-xl mb-2">High Standards</h4>
+                  <p className="text-muted text-sm leading-relaxed">Rigorous quality assurance for every single delivery.</p>
+                </div>
+                <div className="group">
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+                    <Star size={24}/>
+                  </div>
+                  <h4 className="font-display font-black text-xl mb-2">People Focused</h4>
+                  <p className="text-muted text-sm leading-relaxed">Transparent communication is our core philosophy.</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div>
-            <span className="section-tag">Customer Satisfaction</span>
-            <h2 className="section-title">› Clients Adore Our Support Staff, And You Will Too</h2>
-            <p className="text-muted text-lg mb-10 leading-relaxed font-medium">
-              We aren't just a technical partner; we are your strategic ally. Our team is dedicated to your success, providing transparent communication and world-class expertise at every step.
-            </p>
-            <div className="grid grid-cols-2 gap-8 mb-10">
-              <div className="glass-card p-6 flex flex-col items-center text-center hover:scale-105 transition-all duration-500 ease-out">
-                <div className="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-4"><Zap size={24}/></div>
-                <div className="font-display font-extrabold text-xl">High Standards</div>
-              </div>
-              <div className="glass-card p-6 flex flex-col items-center text-center hover:scale-105 transition-all duration-500 ease-out">
-                <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4"><Star size={24}/></div>
-                <div className="font-display font-extrabold text-xl">People Focused</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-yellow-400 mb-2">
-              {[...Array(5)].map((_, i) => <Star key={i} fill="currentColor" size={24}/>)}
-            </div>
-            <p className="font-bold text-dark italic">"Digitomatic transformed our legacy systems into a modern powerhouse. Highly recommended!"</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {dbData.testimonials.slice(0, 2).map((test) => (
+              <motion.div 
+                key={test.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="glass-card p-10 bg-white border-[#f0f2f8] relative group"
+              >
+                <div className="flex items-center gap-1 text-brand mb-8">
+                  {[...Array(test.rating)].map((_, i) => <Star key={i} fill="currentColor" size={16}/>)}
+                </div>
+                <p className="text-dark font-medium italic text-lg mb-8 leading-relaxed">"{test.content}"</p>
+                <div className="flex items-center gap-4">
+                  {test.avatar_url ? (
+                    <img src={test.avatar_url} alt={test.client_name} className="w-12 h-12 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center font-bold text-brand uppercase">{test.client_name.charAt(0)}</div>
+                  )}
+                  <div>
+                    <h5 className="font-display font-bold text-dark">{test.client_name}</h5>
+                    <p className="text-muted text-xs uppercase font-bold tracking-widest">{test.client_role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       <Pricing pricing={dbData.pricing} />
       <Contact />
-      <Footer onAdminClick={() => setIsAdminOpen(true)} />
+      <Footer onAdminClick={() => setIsAdminOpen(true)} settings={dbData.settings} />
 
       {/* Floating WhatsApp Button */}
       <a 
-        href="https://wa.me/yournumberhere" 
+        href={`https://wa.me/${dbData.settings.contact_phone.replace(/\D/g, '')}`} 
         target="_blank" 
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-[90] w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 ring-4 ring-white/20"
@@ -1032,7 +1468,10 @@ export default function App() {
         services={dbData.services}
         portfolio={dbData.portfolio}
         pricing={dbData.pricing}
+        settings={dbData.settings}
+        dbData={dbData}
         refreshData={refreshData}
+        setDbData={setDbData}
       />
     </div>
   );

@@ -43,3 +43,33 @@ export type Message = {
   message: string;
   created_at: string;
 };
+
+export type SiteSettings = {
+  id: number;
+  site_name: string;
+  logo_url: string;
+  contact_email: string;
+  contact_phone: string;
+  contact_address: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  linkedin_url?: string;
+  hero_video_url?: string;
+};
+
+export type ClientLogo = {
+  id: string | number;
+  name: string;
+  logo_url: string;
+  sort_order: number;
+};
+
+export type Testimonial = {
+  id: string | number;
+  client_name: string;
+  client_role: string;
+  content: string;
+  rating: number;
+  avatar_url?: string;
+  sort_order: number;
+};
